@@ -1,0 +1,10 @@
+asyncpg
+psycopg2-binary
+fastapi[standard]
+uvicorn
+pydantic
+pytest
+pytest-asyncio
+httpx
+alembic
+sqlalchemy
