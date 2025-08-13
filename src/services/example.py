@@ -22,11 +22,17 @@ class ExampleService:
         
         return example
     
-    async def get_examples(self, pagination: Optional[PaginationOptions] = None, filters: Optional[FilterOptions] = None) -> Tuple[Example, int]:
-        async with self.session.begin():  # Transaction scope
+    async def get_examples_by_pagination(self, pagination: Optional[PaginationOptions] = None, filters: Optional[FilterOptions] = None) -> Tuple[Example, int]:
+        async with self.session.begin():
             examples, total = await self.repo.filter(pagination, filters)
             return examples, total
-        # Commit happens automatically at the end of `begin()` block
+
+    
+    async def get_examples(self, filters: Optional[FilterOptions] = None) -> Tuple[Example, int]:
+        async with self.session.begin():
+            examples, total = await self.repo.filter(pagination=None, filters=filters)
+            return examples, total
+
     
 '''
 # Alternative: Let the service control transactions more explicitly

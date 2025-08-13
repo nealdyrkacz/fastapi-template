@@ -16,17 +16,14 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.get("")# response_model=PaginatedResponseItems[ExampleResponse])
+@router.get("", response_model=PaginatedResponseItems[ExampleResponse])
 async def get_examples(pagination: PaginationOptions = Depends(), filters: FilterOptions = Depends(), service: ExampleService = Depends(service_provider(ExampleService, ExampleRepository)),):
 
     result: list[Example] = None
     if pagination.is_pagination_enabled():
-        result, total = await service.get_examples(pagination=pagination, filters=filters)
+        result, total = await service.get_examples_by_pagination(pagination=pagination, filters=filters)
     else:
         result = await service.get_examples(filters=filters)
-    
-    logger.info(result)
-
 
     return PaginatedResponseItems.create(
             items=result,
