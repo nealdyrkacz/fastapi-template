@@ -1,10 +1,12 @@
 # services/user_service.py
+from typing import Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from persistence.example import ExampleRepository
 
 from api.schemas.example import ExampleCreate
 
 from entities.example import Example
+from src.api.schemas.core.request import FilterOptions, PaginationOptions
 
 
 
@@ -20,12 +22,11 @@ class ExampleService:
         
         return example
     
-    async def get_examples(self) -> Example:
+    async def get_examples(self, pagination: Optional[PaginationOptions] = None, filters: Optional[FilterOptions] = None) -> Tuple[Example, int]:
         async with self.session.begin():  # Transaction scope
-            return await self.repo.filter()
+            examples, total = await self.repo.filter(pagination, filters)
+            return examples, total
         # Commit happens automatically at the end of `begin()` block
-        
-        return example
     
 '''
 # Alternative: Let the service control transactions more explicitly

@@ -1,12 +1,13 @@
 import logging
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column
-from sqlalchemy import UUID as saUUID, String
+from sqlalchemy import UUID as saUUID, String, func, select
 
 from uuid import UUID, uuid4
 
+from src.api.schemas.core.request import FilterOptions, PaginationOptions
 from src.api.schemas.example import ExampleCreate
 from src.core.persistence.repository import Repository
 
@@ -63,15 +64,35 @@ class ExampleRepository(Repository[Example]):
         pass
 
 
-    async def filter(self, *args, **kwargs) -> list[ExampleEntity]:
+    async def filter(self, pagination: Optional[PaginationOptions] = None, filters: Optional[FilterOptions] = None) -> Tuple[list[ExampleEntity], int]:
         try:
-            q = self.session.query(Example)
-            total = q.count()
-            examples = q.offset((page - 1) * page_size).limit(page_size).all()
+            logger.info(pagination)
+            logger.info(filters)
 
-        return examples, total
-            
-            return map_orm_to_entity(example)
-        except:
-            logger.error("there was an error creating the example")
+            # Build the base query
+            stmt = select(Example)
+            total_stmt = select(func.count()).select_from(Example)
+
+            # Apply filters if needed
+            if filters:
+                # Example:
+                # stmt = stmt.where(Example.name.ilike(f"%{filters.name}%"))
+                pass
+
+            # Get total count
+            total_result = await self.session.execute(total_stmt)
+            total = total_result.scalar_one()
+
+            # Apply pagination
+            if pagination and pagination.page_size and pagination.page:
+                stmt = stmt.offset((pagination.page - 1) * pagination.page_size).limit(pagination.page_size)
+
+            # Execute the query
+            result = await self.session.execute(stmt)
+            examples = result.scalars().all()
+
+            return [map_orm_to_entity(e) for e in examples], total
+
+        except Exception:
+            logger.exception("There was an error filtering Examples")
             raise

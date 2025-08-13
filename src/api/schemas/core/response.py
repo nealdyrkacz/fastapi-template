@@ -48,6 +48,7 @@ class PaginatedResponseItems(BaseModel, Generic[T]):
         prev_page = page - 1 if page > 1 else None
 
         def build_url(page_number: Optional[int]) -> Optional[str]:
+            print(f"page_number {page_number}")
             if page_number is None:
                 return None
             
@@ -55,8 +56,8 @@ class PaginatedResponseItems(BaseModel, Generic[T]):
 
         links = PaginatedLinks(
             self=build_url(page),
-            next=build_url(next_page),
-            prev=build_url(prev_page),
+            next_page=build_url(next_page),
+            prev_page=build_url(prev_page),
             first=build_url(1),
             last=build_url(pages),
         )
