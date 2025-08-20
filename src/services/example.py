@@ -1,12 +1,13 @@
 # services/user_service.py
 from typing import Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
-from persistence.example import ExampleRepository
+from src.persistence.example.repositories.example_repository import ExampleRepository
 
-from api.schemas.example import ExampleCreate
+from api.schemas.example.example import ExampleCreate
 
-from entities.example import Example
-from src.api.schemas.core.request import FilterOptions, PaginationOptions
+from src.domain.example.models.example import Example
+from src.shared.schemas.filter_options import FilterOptions
+from src.shared.schemas.pagination_options import PaginationOptions
 
 
 

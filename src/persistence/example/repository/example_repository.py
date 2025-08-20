@@ -7,11 +7,14 @@ from sqlalchemy import UUID as saUUID, String, func, select
 
 from uuid import UUID, uuid4
 
-from src.api.schemas.core.request import FilterOptions, PaginationOptions
-from src.api.schemas.example import ExampleCreate
+from src.shared.schemas.filter_options import FilterOptions
+from src.shared.schemas.pagination_options import PaginationOptions
+from src.api.schemas.example.example import ExampleCreate
 from src.core.persistence.repository import Repository
 
-from src.entities.example import Example as ExampleEntity
+from src.domain.example.models.example import Example as ExampleEntity
+
+from domain.example.mappers.example_mapper import ExampleMapper
 
 Base = declarative_base()
 
@@ -49,7 +52,8 @@ class ExampleRepository(Repository[Example]):
             self.session.add(example)
             await self.session.flush()  # assigns ID without committing
             
-            return map_orm_to_entity(example)
+            #return map_orm_to_entity(example)
+            return ExampleMapper.to_domain(example)
         except:
             logger.error("there was an error creating the example")
             raise
@@ -66,9 +70,6 @@ class ExampleRepository(Repository[Example]):
 
     async def filter(self, pagination: Optional[PaginationOptions] = None, filters: Optional[FilterOptions] = None) -> Tuple[list[ExampleEntity], int]:
         try:
-            logger.info(pagination)
-            logger.info(filters)
-
             # Build the base query
             stmt = select(Example)
             total_stmt = select(func.count()).select_from(Example)
@@ -91,7 +92,7 @@ class ExampleRepository(Repository[Example]):
             result = await self.session.execute(stmt)
             examples = result.scalars().all()
 
-            return [map_orm_to_entity(e) for e in examples], total
+            return [ExampleMapper.to_domain(e) for e in examples], total
 
         except Exception:
             logger.exception("There was an error filtering Examples")

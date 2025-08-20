@@ -1,15 +1,16 @@
 import logging
 from fastapi import APIRouter, Depends
 
-from src.api.schemas.core.request import FilterOptions, PaginationOptions
-from src.api.schemas.core.response import PaginatedResponseItems, ResponseItem
-from src.api.schemas.example import ExampleCreate, ExampleResponse
+from src.shared.schemas.filter_options import FilterOptions
+from src.shared.schemas.pagination_options import PaginationOptions
+from src.api.schemas.response import PaginatedResponseItems, ResponseItem
+from src.api.schemas.example.example import ExampleCreate, ExampleResponse
 
 import uuid
 
 from src.core.dependency_injection.di import service_provider
-from src.entities.example import Example
-from src.persistence.example import ExampleRepository
+from src.domain.example.models.example import Example
+from src.persistence.example.repositories.example_repository import ExampleRepository
 from src.services.example import ExampleService
 
 logger = logging.getLogger(__name__)

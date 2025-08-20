@@ -1,7 +1,7 @@
 import uuid
 from pydantic import BaseModel
 
-from entities.example import Example
+from src.domain.example.models.example import Example
 
 class ExampleCreate(BaseModel):
     name: str
