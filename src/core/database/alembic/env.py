@@ -32,7 +32,7 @@ target_metadata = None
 
 def get_sync_engine_for_migration():
     engine = create_engine(
-        Config.async_db_uri,
+        Config.sync_db_uri,
     )
     return engine
 
