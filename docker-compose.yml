@@ -1,0 +1,53 @@
+services:
+  template-api:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    container_name: template-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src    # Mount your source code directory into the container
+    networks:
+      - template-app-network
+    #depends_on:
+    #  - template-database
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "python", "-c", "import requests; requests.get('http://localhost:3001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+        
+  template-database:
+    image: postgres:15-alpine
+    container_name: template-database
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=template_database
+    command: postgres -c port=5432
+    volumes:
+      - template-database-data:/var/lib/postgresql/data
+      - ./src/core/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - template-app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -p 5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  src:
+  template-database-data:
+
+networks:
+  template-app-network:
+    driver: bridge 
