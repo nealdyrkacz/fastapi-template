@@ -8,3 +8,7 @@ pytest-asyncio
 httpx
 alembic
 sqlalchemy
+black 
+isort
+flake8
+autoflake
